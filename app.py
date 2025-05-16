@@ -16,6 +16,9 @@ collection = db['reminders']
 # Inicialización de la aplicación Dash
 app = Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}])
 
+# Esto es lo que Gunicorn necesita:
+server = app.server
+
 # Establecer el diseño de la aplicación
 app.layout = html.Div([
     html.H1("Dashboard de Recordatorios", style={'textAlign': 'center', 'margin': '20px 0'}),
