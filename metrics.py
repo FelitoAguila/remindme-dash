@@ -54,14 +54,14 @@ def get_reminders_data(collection, start_date, end_date):
 def get_daily_users(df):
     """Users creating reminders per day."""
     if df.empty:
-        return pd.DataFrame({"date": [], "users": []})
+        return pd.DataFrame({"date_time": [], "count": []})
     daily_users = df.groupby('date_time')['user_id'].nunique().reset_index(name='count')
     return daily_users
 
 def get_monthly_users(df):
     """Users creating reminders per month."""
     if df.empty:
-        return pd.DataFrame({"date": [], "users": []})
+        return pd.DataFrame({"mes": [], "count": []})
     df['mes'] = pd.to_datetime(df['date_time']).dt.to_period('M').astype(str)
     df_month = df.groupby('mes')['user_id'].nunique().reset_index(name="count")
     return df_month
@@ -69,7 +69,7 @@ def get_monthly_users(df):
 def get_daily_reminds_created(df):
     """Reminders created per day."""
     if df.empty:
-        return pd.DataFrame({"date": [], "created": [], "sent": []})
+        return pd.DataFrame({"date_time": [], "count": []})
     # Group by date_created and count
     daily_counts = df.groupby('date_time').size().reset_index(name='count')
     return daily_counts.sort_values('date_time').reset_index(drop=True)
@@ -77,7 +77,7 @@ def get_daily_reminds_created(df):
 def get_monthly_reminds_created(df):
     """Reminders created per month."""
     if df.empty:
-        return pd.DataFrame({"month": [], "created": [], "sent": []})
+        return pd.DataFrame({"month": [], "count": []})
     # Convert date_time to datetime and extract month
     df['month'] = pd.to_datetime(df['date_time'], errors='coerce').dt.strftime('%Y-%m')
     # Group by month and count
@@ -85,12 +85,16 @@ def get_monthly_reminds_created(df):
     return monthly_counts.sort_values('month').reset_index(drop=True)
 
 def get_daily_reminds_sent(df):
+    if df.empty:
+        return pd.DataFrame({"date_time": [], "count": []})
     sent_date = df[df['status'] == "sent"]
     daily_sent = sent_date.groupby('date_time').size().reset_index(name='count')
     return daily_sent
 
 def get_monthly_reminds_sent(df):
     """Return DataFrame with month and count of status == 'sent' per month."""
+    if df.empty:
+        return pd.DataFrame({"month": [], "count": []})
     # Filter for status == 'sent'
     sent_date = df[df['status'] == 'sent']
     # Convert date_time to datetime and extract month
@@ -112,12 +116,12 @@ def calculate_metrics(start_date, end_date):
             "average_monthly_users": 0,
             "per_user_reminds_created": 0,
             "per_user_reminds_sent": 0,
-            "daily_users": pd.DataFrame(),
-            "monthly_users": pd.DataFrame(),
-            "daily_reminds_created": pd.DataFrame(),
-            "monthly_reminds_created": pd.DataFrame(),
-            "daily_reminds_sent": pd.DataFrame(),
-            "monthly_reminds_sent": pd.DataFrame(),
+            "daily_users": pd.DataFrame({"date_time": [], "count": []}),
+            "monthly_users": pd.DataFrame({"mes": [], "count": []}),
+            "daily_reminds_created": pd.DataFrame({"date_time": [], "count": []}),
+            "monthly_reminds_created": pd.DataFrame({"month": [], "count": []}),
+            "daily_reminds_sent": pd.DataFrame({"date_time": [], "count": []}),
+            "monthly_reminds_sent": pd.DataFrame({"month": [], "count": []}),
             "average_daily_reminds_created": 0,
             "average_daily_reminds_sent": 0,
             "average_per_user_daily_reminds_created": 0,
